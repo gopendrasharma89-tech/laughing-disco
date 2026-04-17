@@ -1,0 +1,3 @@
+-keep class kotlin.** { *; }
+-keep class androidx.compose.** { *; }
+-keep class com.openclaw.go.** { *; }
