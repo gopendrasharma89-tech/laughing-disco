@@ -1,7 +1,10 @@
 pluginManagement {
     repositories {
-        google { content { includeGroupByRegex("com\\.android.*") } }
-        mavenCentral { content { includeGroupByRegex("org\\.jetbrains.*") } }
+        // Android and Kotlin plugins resolve transitive dependencies from
+        // several groups, so filtering these repositories by plugin group
+        // prevents Gradle from finding required artifacts.
+        google()
+        mavenCentral()
         gradlePluginPortal()
     }
 }
