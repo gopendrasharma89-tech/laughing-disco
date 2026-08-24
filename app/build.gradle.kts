@@ -17,6 +17,9 @@ android {
 
     buildTypes {
         release {
+            // Use the standard debug keystore for CI builds so Gradle emits an
+            // installable app-release.apk without requiring repository secrets.
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
