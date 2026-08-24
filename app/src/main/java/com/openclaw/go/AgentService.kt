@@ -1,20 +1,60 @@
 package com.openclaw.go
-import android.app.*
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 
 class AgentService : Service() {
+
+    companion object {
+        private const val CHANNEL_ID = "agent_channel"
+        private const val NOTIFICATION_ID = 1
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val channelId = "agent"
-        getSystemService(NotificationManager::class.java)?.createNotificationChannel(
-            NotificationChannel(channelId, "Agent", NotificationManager.IMPORTANCE_LOW)
-        )
-        startForeground(1, NotificationCompat.Builder(this, channelId)
-            .setContentTitle("🤖 OpenClaw Active")
-            .setContentText("AI running in background")
-            .setSmallIcon(android.R.drawable.ic_dialog_info).build())
+        val notification = buildNotification()
+        startForeground(NOTIFICATION_ID, notification)
         return START_STICKY
     }
+
     override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Agent Service",
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "Notification for OpenClaw Agent background service"
+            }
+            val manager = getSystemService(NotificationManager::class.java)
+            manager?.createNotificationChannel(channel)
+        }
+    }
+
+    private fun buildNotification(): Notification {
+        return NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("🤖 OpenClaw Active")
+            .setContentText("AI agent running in background")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
+            .build()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+    }
 }
